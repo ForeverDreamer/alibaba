@@ -1,0 +1,17 @@
+# cache
+__pycache__
+*.pyc
+.ipynb_checkpoints
+.pytest_cache
+temp/
+static_in_env/
+log/
+
+# pycharm proj conf
+.idea
+
+# data
+*.json
+*.jl
+src/mm/*.txt
+
