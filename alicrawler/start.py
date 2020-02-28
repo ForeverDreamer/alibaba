@@ -1,3 +1,3 @@
 from scrapy import cmdline
 
-cmdline.execute("scrapy crawl product_spider".split())
+cmdline.execute("scrapy crawl headers_info_spider".split())

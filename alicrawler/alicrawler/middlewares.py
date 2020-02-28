@@ -5,9 +5,19 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+# 系统标准库
+import os
 import random
+from datetime import datetime as dt
+from datetime import timedelta
 
+# 第三方库
+import requests
+from twisted.web._newclient import ResponseNeverReceived
+from twisted.internet.error import TimeoutError, ConnectionRefusedError, ConnectError
 from scrapy import signals
+
+# 自定义库
 from alicrawler.utils.ip_pool import proxy_list
 
 

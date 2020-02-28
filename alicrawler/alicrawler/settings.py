@@ -11,6 +11,7 @@
 
 import os
 import sys
+import random
 import django
 
 from shutil import which
@@ -57,10 +58,17 @@ ROBOTSTXT_OBEY = False
 #TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
-#DEFAULT_REQUEST_HEADERS = {
-#   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-#   'Accept-Language': 'en',
-#}
+DEFAULT_REQUEST_HEADERS = {
+    "Host": "www.test.com",
+    'User-Agent': random.choice(ua_list),
+    "Referer": "http://www.zhihu.com/people/raymond-wang",
+    'Connection': 'keep-alive',
+    'Cache-Control': 'max-age=0',
+    'Upgrade-Insecure-Requests': '1',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Encoding': 'gzip, deflate, sdch',
+    'Accept-Language': 'zh-CN,zh;q=0.8',
+}
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
@@ -72,9 +80,11 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     # 'alicrawler.middlewares.AlicrawlerDownloaderMiddleware': 543,
-    'alicrawler.middlewares.RandomUserAgentDownloaderMiddleware': 543,
+    # 'alicrawler.middlewares.RandomUserAgentDownloaderMiddleware': 543,
+    'http_proxy_middleware.http_proxy_middleware.HttpProxyMiddleware': 544,
+    'scrapy_selenium.SeleniumMiddleware': 800,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-    'scrapy_selenium.SeleniumMiddleware': 800
+    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
 }
 
 # Enable or disable extensions
@@ -110,3 +120,5 @@ ITEM_PIPELINES = {
 #HTTPCACHE_DIR = 'httpcache'
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
+
+DOWNLOAD_TIMEOUT = 10
