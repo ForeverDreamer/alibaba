@@ -13,8 +13,7 @@ from .http import SeleniumRequest
 class SeleniumMiddleware:
     """Scrapy middleware handling the requests using selenium"""
 
-    def __init__(self, driver_name, driver_executable_path, driver_arguments,
-        browser_executable_path):
+    def __init__(self, driver_name, driver_executable_path, driver_arguments, browser_executable_path):
         """Initialize the selenium webdriver
 
         Parameters
@@ -40,8 +39,9 @@ class SeleniumMiddleware:
         driver_options = driver_options_klass()
         if browser_executable_path:
             driver_options.binary_location = browser_executable_path
-        for argument in driver_arguments:
-            driver_options.add_argument(argument)
+        if driver_arguments:
+            for argument in driver_arguments:
+                driver_options.add_argument(argument)
 
         driver_kwargs = {
             'executable_path': driver_executable_path,

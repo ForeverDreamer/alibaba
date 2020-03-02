@@ -26,7 +26,7 @@ USER_AGENTS = ua_list
 
 SELENIUM_DRIVER_NAME = 'chrome'
 SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver')
-SELENIUM_DRIVER_ARGUMENTS = ['--headless']
+# SELENIUM_DRIVER_ARGUMENTS = ['--headless']
 
 BOT_NAME = 'alicrawler'
 
@@ -97,7 +97,8 @@ DOWNLOADER_MIDDLEWARES = {
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     # 'alicrawler.pipelines.AlicrawlerPipeline': 300,
-    'alicrawler.pipelines.ProductPipeline': 100,
+    'alicrawler.pipelines.TruncateTitle': 100,
+    'alicrawler.pipelines.ProductPipeline': 200,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
