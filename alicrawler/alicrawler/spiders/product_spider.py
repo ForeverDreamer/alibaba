@@ -12,7 +12,6 @@ from alicrawler.items import ProductItem
 from scrapy_selenium import SeleniumRequest
 
 
-
 class ProductSpider(scrapy.Spider):
     name = 'product_spider'
 
@@ -23,15 +22,25 @@ class ProductSpider(scrapy.Spider):
         # We scrape the first 5 pages of books to scrape
         urls = [
             'https://www.jd.com/',
+            # 'https://list.jd.com/list.html?cat=670,671,672',
+            # 'https://list.jd.com/list.html?cat=670,671,1105',
+            # 'https://list.jd.com/list.html?cat=670,671,2694',
         ]
 
         # We generate a Request for each URL
         # We also specify the use of the parse function to parse the responses
         for url in urls:
-            yield SeleniumRequest(url=url, callback=self.navigate)
+            yield SeleniumRequest(url=url, callback=self.navigate())
+            # yield SeleniumRequest(url=url, callback=self.parse, cookies=[{'name': 'currency',
+            #                                                               'value': 'USD',
+            #                                                               'domain': 'example.com',
+            #                                                               'path': '/currency'}])
 
     def navigate(self, response):
+        # time.sleep(10)
         driver = response.request.meta['driver']
+        # cookies = driver.get_cookies()
+        # print(cookies)
         driver.implicitly_wait(10)
         action_chains = ActionChains(driver)
         computer_work = driver.find_element_by_xpath("//li[@data-index='3']")
@@ -39,11 +48,12 @@ class ProductSpider(scrapy.Spider):
         note_book = driver.find_element_by_xpath('//*[@id="cate_item3"]/div[1]/div[2]/dl[1]/dd/a[1]')
         # action_chains = ActionChains(driver)
         # action_chains.move_to_element(note_book).click(note_book).perform()
-        yield SeleniumRequest(url='https://list.jd.com/list.html?cat=670,671,672',
-                              callback=self.parse)
+        yield SeleniumRequest(url='https://list.jd.com/list.html?cat=670,671,672', callback=self.parse)
 
     def parse(self, response):
         driver = response.request.meta['driver']
+        # cookies = driver.get_cookies()
+        # print(cookies)
         driver.implicitly_wait(10)
         # time.sleep(5)
         product_list = response.css('li.gl-item')

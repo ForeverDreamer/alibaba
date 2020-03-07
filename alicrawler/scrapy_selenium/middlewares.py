@@ -83,13 +83,29 @@ class SeleniumMiddleware:
 
         self.driver.get(request.url)
 
-        for cookie_name, cookie_value in request.cookies.items():
-            self.driver.add_cookie(
-                {
-                    'name': cookie_name,
-                    'value': cookie_value
-                }
-            )
+        # for cookie_name, cookie_value in request.cookies.items():
+        #     self.driver.add_cookie(
+        #         {
+        #             'name': cookie_name,
+        #             'value': cookie_value
+        #         }
+        #     )
+        # 自定义额外cookie
+        for cookie in request.cookies:
+            self.driver.add_cookie(cookie)
+
+        # Saving current cookies and reformatting them
+        cookies = self.driver.get_cookies()
+        print(cookies)
+        # cookies应该是driver自动管理的，一般不需要自己手动添加
+        # for cookie in cookies:
+        #     if 'expiry' in cookie:
+        #         cookie['expiry'] = int(cookie['expiry'])
+
+        # Adding cookies back into the driver
+        # F12查看一下Chrome cookies，确认不要重复添加
+        # for cookie in cookies:
+        #     self.driver.add_cookie(cookie)
 
         if request.wait_until:
             WebDriverWait(self.driver, request.wait_time).until(

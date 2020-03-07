@@ -3,7 +3,7 @@
 import scrapy
 
 
-class ProductSpider(scrapy.Spider):
+class HeadersInfoSpider(scrapy.Spider):
     name = 'headers_info_spider'
 
     start_urls = ['http://127.0.0.1:8000/ct/ri']

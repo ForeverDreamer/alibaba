@@ -58,16 +58,30 @@ ROBOTSTXT_OBEY = False
 #TELNETCONSOLE_ENABLED = False
 
 # Override the default request headers:
+# DEFAULT_REQUEST_HEADERS = {
+#     "Host": "www.test.com",
+#     'User-Agent': random.choice(ua_list),
+#     "Referer": "http://www.zhihu.com/people/raymond-wang",
+#     'Connection': 'keep-alive',
+#     'Cache-Control': 'max-age=0',
+#     'Upgrade-Insecure-Requests': '1',
+#     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+#     'Accept-Encoding': 'gzip, deflate, sdch',
+#     'Accept-Language': 'zh-CN,zh;q=0.8',
+# }
+
+# ip没有变，User-Agent一直变或格式错误异常(网上拷贝的)有可能被识别为爬虫，测试一下每次请求的response的Cookie用是否需要手动加进去
 DEFAULT_REQUEST_HEADERS = {
-    "Host": "www.test.com",
-    'User-Agent': random.choice(ua_list),
-    "Referer": "http://www.zhihu.com/people/raymond-wang",
-    'Connection': 'keep-alive',
-    'Cache-Control': 'max-age=0',
-    'Upgrade-Insecure-Requests': '1',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Encoding': 'gzip, deflate, sdch',
-    'Accept-Language': 'zh-CN,zh;q=0.8',
+    'Content-Length': '', 'Content-Type': 'text/plain',
+    # 'Host': '127.0.0.1:8000',
+    'Connection': 'keep-alive', 'Upgrade-Insecure-Requests': '1',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36',
+    'Sec-Fetch-Dest': 'document',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+    'Dnt': '1', 'Sec-Fetch-Site': 'none', 'Sec-Fetch-Mode': 'navigate', 'Sec-Fetch-User': '?1',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,la;q=0.7',
+    # 'Cookie': 'csrftoken=Wmi8NZmkY7hD3sy0h3EpJXU0owRjtjLlcdx48Tsa70icPIBgXCHwIwiLlCGJNF2P; sessionid=qfejn77jauoiw1mtws2xli0dptgfiwb1'
 }
 
 # Enable or disable spider middlewares
@@ -81,10 +95,10 @@ DEFAULT_REQUEST_HEADERS = {
 DOWNLOADER_MIDDLEWARES = {
     # 'alicrawler.middlewares.AlicrawlerDownloaderMiddleware': 543,
     # 'alicrawler.middlewares.RandomUserAgentDownloaderMiddleware': 543,
-    'http_proxy_middleware.http_proxy_middleware.HttpProxyMiddleware': 544,
+    # 'http_proxy_middleware.http_proxy_middleware.HttpProxyMiddleware': 544,
     'scrapy_selenium.SeleniumMiddleware': 800,
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
+    # 'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': None,
 }
 
 # Enable or disable extensions
