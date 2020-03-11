@@ -1,5 +1,6 @@
 """This module contains the ``SeleniumMiddleware`` scrapy middleware"""
 
+import os
 from importlib import import_module
 
 from scrapy import signals
@@ -13,7 +14,7 @@ from .http import SeleniumRequest
 class SeleniumMiddleware:
     """Scrapy middleware handling the requests using selenium"""
 
-    def __init__(self, driver_name, driver_executable_path, driver_arguments, browser_executable_path):
+    def __init__(self, driver_name, driver_executable_path, driver_arguments, browser_executable_path, proxy_info):
         """Initialize the selenium webdriver
 
         Parameters
@@ -43,12 +44,27 @@ class SeleniumMiddleware:
             for argument in driver_arguments:
                 driver_options.add_argument(argument)
 
+        if proxy_info.get('enable'):
+            if proxy_info.get('password'):
+                plugin_path = self.create_proxyauth_extension(
+                    proxy_host="www.foo.com",
+                    proxy_port=8010,
+                    proxy_username="name",
+                    proxy_password="password"
+                )
+                driver_options.add_extension(plugin_path)
+            else:
+                driver_options.add_argument(f'--proxy-server={self.get_proxy()}')
+
         driver_kwargs = {
             'executable_path': driver_executable_path,
             f'{driver_name}_options': driver_options
         }
 
         self.driver = driver_klass(**driver_kwargs)
+        # cookies = self.driver.get_cookies()
+        # print(cookies)
+        self.driver.delete_all_cookies()
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -58,6 +74,7 @@ class SeleniumMiddleware:
         driver_executable_path = crawler.settings.get('SELENIUM_DRIVER_EXECUTABLE_PATH')
         browser_executable_path = crawler.settings.get('SELENIUM_BROWSER_EXECUTABLE_PATH')
         driver_arguments = crawler.settings.get('SELENIUM_DRIVER_ARGUMENTS')
+        proxy_info = crawler.settings.get('SELENIUM_DRIVER_PROXY')
 
         if not driver_name or not driver_executable_path:
             raise NotConfigured(
@@ -68,7 +85,8 @@ class SeleniumMiddleware:
             driver_name=driver_name,
             driver_executable_path=driver_executable_path,
             driver_arguments=driver_arguments,
-            browser_executable_path=browser_executable_path
+            browser_executable_path=browser_executable_path,
+            proxy_info=proxy_info
         )
 
         crawler.signals.connect(middleware.spider_closed, signals.spider_closed)
@@ -81,6 +99,10 @@ class SeleniumMiddleware:
         if not isinstance(request, SeleniumRequest):
             return None
 
+        # 自定义额外cookie，应该加在请求前(未测试，原来的代码为什么是在self.driver.get(request.url)之后，代码写错了？)
+        for cookie in request.cookies:
+            self.driver.add_cookie(cookie)
+
         self.driver.get(request.url)
 
         # for cookie_name, cookie_value in request.cookies.items():
@@ -90,13 +112,10 @@ class SeleniumMiddleware:
         #             'value': cookie_value
         #         }
         #     )
-        # 自定义额外cookie
-        for cookie in request.cookies:
-            self.driver.add_cookie(cookie)
 
         # Saving current cookies and reformatting them
-        cookies = self.driver.get_cookies()
-        print(cookies)
+        # cookies = self.driver.get_cookies()
+        # print(cookies)
         # cookies应该是driver自动管理的，一般不需要自己手动添加
         # for cookie in cookies:
         #     if 'expiry' in cookie:
@@ -135,3 +154,128 @@ class SeleniumMiddleware:
 
         self.driver.quit()
 
+    @staticmethod
+    def get_proxy():
+        # 从代理服务商获取可用ip
+        proxy = 'http://localhost:8888'
+        return proxy
+
+    @staticmethod
+    def create_proxyauth_extension(proxy_host, proxy_port,
+                                   proxy_username, proxy_password,
+                                   scheme='http', plugin_path=None):
+        """Proxy Auth Extension
+
+        args:
+            proxy_host (str): domain or ip address, ie proxy.domain.com
+            proxy_port (int): port
+            proxy_username (str): auth username
+            proxy_password (str): auth password
+        kwargs:
+            scheme (str): proxy scheme, default http
+            plugin_path (str): absolute path of the extension
+
+        return str -> plugin_path
+        """
+        import string
+        import zipfile
+
+        if plugin_path is None:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            plugin_path = os.path.join(base_dir, 'chrome_proxyauth_plugin.zip')
+
+        manifest_json = """
+        {
+            "version": "1.0.0",
+            "manifest_version": 2,
+            "name": "Chrome Proxy",
+            "permissions": [
+                "proxy",
+                "tabs",
+                "unlimitedStorage",
+                "storage",
+                "<all_urls>",
+                "webRequest",
+                "webRequestBlocking"
+            ],
+            "background": {
+                "scripts": ["background.js"]
+            },
+            "minimum_chrome_version":"22.0.0"
+        }
+        """
+
+        # background_js = """
+        # var config = {
+        #         mode: "fixed_servers",
+        #         rules: {
+        #         singleProxy: {
+        #             scheme: "%s",
+        #             host: "%s",
+        #             port: parseInt(%s)
+        #         },
+        #         bypassList: ["localhost"]
+        #         }
+        #     };
+        #
+        # chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
+        #
+        # function callbackFn(details) {
+        #     return {
+        #         authCredentials: {
+        #             username: "%s",
+        #             password: "%s"
+        #         }
+        #     };
+        # }
+        #
+        # chrome.webRequest.onAuthRequired.addListener(
+        #             callbackFn,
+        #             {urls: ["<all_urls>"]},
+        #             ['blocking']
+        # );
+        # """ % (scheme, proxy_host, proxy_port, proxy_username, proxy_password)
+
+        background_js = string.Template(
+            """
+            var config = {
+                    mode: "fixed_servers",
+                    rules: {
+                      singleProxy: {
+                        scheme: "${scheme}",
+                        host: "${host}",
+                        port: parseInt(${port})
+                      },
+                      bypassList: ["foobar.com"]
+                    }
+                  };
+    
+            chrome.proxy.settings.set({value: config, scope: "regular"}, function() {});
+    
+            function callbackFn(details) {
+                return {
+                    authCredentials: {
+                        username: "${username}",
+                        password: "${password}"
+                    }
+                };
+            }
+    
+            chrome.webRequest.onAuthRequired.addListener(
+                        callbackFn,
+                        {urls: ["<all_urls>"]},
+                        ['blocking']
+            );
+            """
+        ).substitute(
+            scheme=scheme,
+            host=proxy_host,
+            port=proxy_port,
+            username=proxy_username,
+            password=proxy_password,
+        )
+        with zipfile.ZipFile(plugin_path, 'w') as zp:
+            zp.writestr("manifest.json", manifest_json)
+            zp.writestr("background.js", background_js)
+
+        return plugin_path

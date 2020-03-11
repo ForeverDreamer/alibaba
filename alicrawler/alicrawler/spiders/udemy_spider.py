@@ -12,6 +12,7 @@ from scrapy_selenium import SeleniumRequest
 
 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 class UdemySpider(scrapy.Spider):
     name = 'udemy_spider'
 

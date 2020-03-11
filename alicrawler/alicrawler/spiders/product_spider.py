@@ -30,7 +30,7 @@ class ProductSpider(scrapy.Spider):
         # We generate a Request for each URL
         # We also specify the use of the parse function to parse the responses
         for url in urls:
-            yield SeleniumRequest(url=url, callback=self.navigate())
+            yield SeleniumRequest(url=url, callback=self.navigate)
             # yield SeleniumRequest(url=url, callback=self.parse, cookies=[{'name': 'currency',
             #                                                               'value': 'USD',
             #                                                               'domain': 'example.com',

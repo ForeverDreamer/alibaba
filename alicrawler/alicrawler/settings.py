@@ -27,6 +27,8 @@ USER_AGENTS = ua_list
 SELENIUM_DRIVER_NAME = 'chrome'
 SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver')
 # SELENIUM_DRIVER_ARGUMENTS = ['--headless']
+SELENIUM_DRIVER_ARGUMENTS = ['--start-maximized']  # 浏览器窗口最大化
+SELENIUM_DRIVER_PROXY = {'enable': False, 'password': False}
 
 BOT_NAME = 'alicrawler'
 
