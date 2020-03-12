@@ -50,11 +50,22 @@ class ProductSpider(scrapy.Spider):
         # action_chains.move_to_element(note_book).click(note_book).perform()
         yield SeleniumRequest(url='https://list.jd.com/list.html?cat=670,671,672', callback=self.parse)
 
+    def veri_code_show(self, driver):
+        # 检测当前页面的验证元素，判断是否出现验证码
+        return "验证码字符" in driver.page_source
+
     def parse(self, response):
         driver = response.request.meta['driver']
         # cookies = driver.get_cookies()
         # print(cookies)
         driver.implicitly_wait(10)
+        # 如果网站弹出程序无法自动解决的验证码，可以通过人工辅助的方式输入验证码，然后重新获取当前网页数据
+        if self.veri_code_show(driver):
+            # 等待人工输入验证码后，重新请求当前页面
+            while self.veri_code_show(driver):
+                time.sleep(10)
+            yield SeleniumRequest(url='https://list.jd.com/list.html?cat=670,671,672', callback=self.parse)
+            return
         # time.sleep(5)
         product_list = response.css('li.gl-item')
 
