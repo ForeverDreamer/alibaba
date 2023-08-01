@@ -6,8 +6,22 @@
 # https://docs.scrapy.org/en/latest/topics/items.html
 
 import scrapy
+from scrapy.loader.processors import MapCompose
 from scrapy_djangoitem import DjangoItem
 from product.models import Product
+
+
+
+def convert_price(price):
+    # if price:
+    #     return float(price.replace(',', '')) / USDINR
+    return price
+
+
+def shorten_amazon_link(link):
+    # product_id = link.split('/')[-1]
+    # return 'https://amazon.in/dp/' + product_id
+    return link
 
 
 class AlicrawlerItem(scrapy.Item):
@@ -18,3 +32,8 @@ class AlicrawlerItem(scrapy.Item):
 
 class ProductItem(DjangoItem):
     django_model = Product
+
+
+class TshirtItem(scrapy.Item):
+    title = scrapy.Field()
+    description = scrapy.Field()

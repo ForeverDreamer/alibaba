@@ -22,6 +22,11 @@ class TruncateTitle(object):
         return item
 
 
+# class ProductPipeline(object):
+#     def process_item(self, item, spider):
+#         item.save()  # 数据将会自动添加到指定的表
+
+
 class ProductPipeline(object):
     def process_item(self, item, spider):
-        item.save()  # 数据将会自动添加到指定的表
+        return item

@@ -56,9 +56,12 @@ class SeleniumMiddleware:
             else:
                 driver_options.add_argument(f'--proxy-server={self.get_proxy()}')
 
+        # driver_kwargs = {
+        #     'executable_path': driver_executable_path,
+        #     f'{driver_name}_options': driver_options
+        # }
         driver_kwargs = {
-            'executable_path': driver_executable_path,
-            f'{driver_name}_options': driver_options
+            'options': driver_options
         }
 
         self.driver = driver_klass(**driver_kwargs)

@@ -22,10 +22,13 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'aliserver.settings'
 # 手动初始化Django：
 django.setup()
 
+# LOG_LEVEL = 'INFO'
+
 USER_AGENTS = ua_list
 
 SELENIUM_DRIVER_NAME = 'chrome'
-SELENIUM_DRIVER_EXECUTABLE_PATH = which('chromedriver')
+# SELENIUM_DRIVER_EXECUTABLE_PATH = which('chrome')
+SELENIUM_DRIVER_EXECUTABLE_PATH = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 # SELENIUM_DRIVER_ARGUMENTS = ['--headless']
 SELENIUM_DRIVER_ARGUMENTS = ['--start-maximized']  # 浏览器窗口最大化
 SELENIUM_DRIVER_PROXY = {'enable': False, 'password': False}
@@ -139,3 +142,7 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 DOWNLOAD_TIMEOUT = 10
+
+FEED_FORMAT = 'json'
+FEED_URI = 'tmp/tshirt.json'
+FEED_EXPORT_ENCODING = 'utf-8'
