@@ -4,10 +4,14 @@ import random
 import scrapy
 from scrapy.loader import ItemLoader
 from scrapy.loader.processors import TakeFirst
+from scrapy.http import HtmlResponse
+
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+
 
 from alicrawler.items import TshirtItem
 from scrapy_selenium import SeleniumRequest
@@ -35,9 +39,31 @@ class FlashShopSpider(scrapy.Spider):
 
     def navigate(self, response):
         driver = response.request.meta['driver']
-        # time.sleep(5)
+        action_chains = ActionChains(driver)
+        view_more = driver.find_element(
+            by=By.CSS_SELECTOR,
+            value='body > div.products.page-layout > div.page-content > div.main > div.btn-wrap > div'
+        )
+        action_chains.move_to_element(view_more).click(view_more).perform()
+        WebDriverWait(driver, 10).until(
+            EC.visibility_of(view_more)
+        )
+        time.sleep(5)
+        view_more = driver.find_element(
+            by=By.CSS_SELECTOR,
+            value='body > div.products.page-layout > div.page-content > div.main > div.btn-wrap > div'
+        )
+        action_chains = ActionChains(driver)
+        action_chains.move_to_element(view_more).click(view_more).perform()
+        time.sleep(5)
         # while "w-product-card" not in driver.page_source:
         #     time.sleep(1)
+        response = HtmlResponse(
+            driver.current_url,
+            body=str.encode(driver.page_source),
+            encoding='utf-8',
+            request=response.request
+        )
         detail_urls = response.css('.w-product-card > a::attr(href)').extract()
         for url in detail_urls:
             yield SeleniumRequest(
@@ -59,6 +85,7 @@ class FlashShopSpider(scrapy.Spider):
         product_loader.default_output_processor = TakeFirst()
 
         product_loader.add_css('title', '.product-desc::text')
+        product_loader.add_css('price', '.product-price::text')
         product_loader.add_css('description', '.accordion-info-inner > .desc::text')
 
         yield product_loader.load_item()

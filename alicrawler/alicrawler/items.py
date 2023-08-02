@@ -13,9 +13,8 @@ from product.models import Product
 
 
 def convert_price(price):
-    # if price:
-    #     return float(price.replace(',', '')) / USDINR
-    return price
+    if price:
+        return float(price[1:].strip().replace(',', '')[1:])
 
 
 def shorten_amazon_link(link):
@@ -36,4 +35,5 @@ class ProductItem(DjangoItem):
 
 class TshirtItem(scrapy.Item):
     title = scrapy.Field()
+    price = scrapy.Field(input_processor=MapCompose(convert_price))
     description = scrapy.Field()
